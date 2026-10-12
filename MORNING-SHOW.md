@@ -47,3 +47,21 @@ then build the Android Gradle application.
 
 The first acceptance test is an independently recorded M4A and matching
 JSONL on one real device; the two-phone synchronized test follows.
+
+## Offline two-phone audio alignment
+
+A host-side experiment is available at `scripts/align_audio.py`.
+It decodes two exported M4A/WAV recordings with FFmpeg and estimates
+their relative offset from shared ambient sound or a deliberate clap:
+
+```sh
+python3 scripts/align_audio.py Friso.m4a Vanessa.m4a --seconds 45 \
+  --max-lag 15 --json-output session_alignment.json
+python3 scripts/test_align_audio.py
+```
+
+Requires NumPy and FFmpeg on the host. A synthetic 0.700-second offset
+is detected in its deterministic test. Low acoustic correlation is
+flagged for review; do not assume reliable synchronization without
+a common sound or verified clock exchange. This is audio-only and does
+not infer body position, emotion or true device clock offsets.
