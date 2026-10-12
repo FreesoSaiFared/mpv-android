@@ -24,6 +24,9 @@ Android shows an ongoing foreground recording notification with a Stop action.
 Every marker includes the device's monotonic
 `elapsed_realtime_nanos` clock and UTC wall time in milliseconds.
 **These are not yet a verified common clock across phones.**
+The Chromebook mpv player additionally writes 2 Hz playback metadata into a
+`player_*.events.jsonl` sidecar under `Android/data/is.xyz.mpv/files/Documents/MorningShow/<session>/`, including media path, current position,
+pause state, playback rate, and seek/discontinuity observations.
 The next milestone will add a Chromebook master clock, bidirectional
 clock-offset measurements, and clip-position anchors. Manual markers alone
 do not guarantee frame-accurate synchronization across devices.

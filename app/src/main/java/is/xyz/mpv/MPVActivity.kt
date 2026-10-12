@@ -1,6 +1,7 @@
 package `is`.xyz.mpv
 
 import `is`.xyz.mpv.databinding.PlayerBinding
+import `is`.xyz.mpv.commentary.MorningPlaybackTimeline
 import `is`.xyz.mpv.MPVLib.MpvEvent
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -58,6 +59,7 @@ typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
 
 class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver {
+    private var morningTimeline: MorningPlaybackTimeline? = null
     // for calls to eventUi() and eventPropertyUi()
     private val eventUiHandler = Handler(Looper.getMainLooper())
     // for use with fadeRunnable1..3
@@ -305,6 +307,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         player.addObserver(this)
         player.initialize(filesDir.path, cacheDir.path)
         player.playFile(filepath)
+        morningTimeline = runCatching {
+            MorningPlaybackTimeline(applicationContext).also { it.start() }
+        }.getOrNull()
 
         mediaSession = initMediaSession()
         updateMediaSession()
@@ -343,6 +348,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     override fun onDestroy() {
+        morningTimeline?.stop()
+        morningTimeline = null
         Log.v(TAG, "Exiting.")
 
         // Suppress any further callbacks
