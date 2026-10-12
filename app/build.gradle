@@ -8,6 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
+        applicationId "de.torsionfield.morningmpv"
         minSdkVersion 23
         targetSdk 36
 

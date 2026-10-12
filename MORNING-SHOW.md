@@ -14,7 +14,7 @@ mpv-android. The original player remains available. No video capture is active.
 
 Each phone stores an independent AAC mono 48 kHz, 128 kbps M4A file,
 a JSONL event log and a session JSON sidecar at:
-`Android/data/is.xyz.mpv/files/Music/MorningShow/<session>/`.
+`Android/data/de.torsionfield.morningmpv/files/Music/MorningShow/<session>/`.
 
 Recording stays local; no account, remote service, camera, or upload is required.
 Android shows an ongoing foreground recording notification with a Stop action.
@@ -25,7 +25,7 @@ Every marker includes the device's monotonic
 `elapsed_realtime_nanos` clock and UTC wall time in milliseconds.
 **These are not yet a verified common clock across phones.**
 The Chromebook mpv player additionally writes 2 Hz playback metadata into a
-`player_*.events.jsonl` sidecar under `Android/data/is.xyz.mpv/files/Documents/MorningShow/<session>/`, including media path, current position,
+`player_*.events.jsonl` sidecar under `Android/data/de.torsionfield.morningmpv/files/Documents/MorningShow/<session>/`, including media path, current position,
 pause state, playback rate, and seek/discontinuity observations.
 The next milestone will add a Chromebook master clock, bidirectional
 clock-offset measurements, and clip-position anchors. Manual markers alone
