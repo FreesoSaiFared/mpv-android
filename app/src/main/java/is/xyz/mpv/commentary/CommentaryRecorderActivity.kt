@@ -60,8 +60,9 @@ class CommentaryRecorderActivity : AppCompatActivity() {
         heading("CENTRAL RECORDER", 12f, amber)
         hubField = EditText(this).apply {
             setSingleLine(true); setTextColor(light); textSize = 14f
-            setText(pref.getString("hub_url",
-                "https://i9es-home.rattlesnake-shiner.ts.net:19884"))
+            val saved = pref.getString("hub_url", "") ?: ""
+            setText(if(saved.isBlank() || saved == "http://127.0.0.1:18767")
+                "https://i9es-home.rattlesnake-shiner.ts.net:19884" else saved)
         }
         root.addView(hubField)
         tokenField = EditText(this).apply {

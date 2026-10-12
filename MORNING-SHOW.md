@@ -108,3 +108,7 @@ The signing key remains on i9ES under gitignored `central/state/signing/`.
 When the phone reconnects, an update can use `adb install -r` with this
 same signing key without removing previous recordings.
 The recorder screen includes **RESEND LAST TO i9ES** for interrupted uploads.
+
+Huawei USB testing used a loopback hub URL; later builds automatically show
+the secure i9ES HTTPS address instead when the saved URL equals that one-time
+debug loopback address. Previously recorded files remain untouched.
