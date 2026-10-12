@@ -14,8 +14,5 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
-      - name: Install Android compilation SDK
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Compile Android Kotlin
         run: ./gradlew :app:compileDefaultDebugKotlin --no-daemon --console=plain
