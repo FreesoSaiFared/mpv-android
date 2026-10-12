@@ -14,6 +14,8 @@ import java.util.*
 /** Audio-only, explicitly activated recording companion. */
 class CommentaryRecorderActivity : AppCompatActivity() {
     private lateinit var sessionField: EditText
+    private lateinit var hubField: EditText
+    private lateinit var tokenField: EditText
     private lateinit var speakerSpinner: Spinner
     private lateinit var status: TextView
     private val ui = Handler(Looper.getMainLooper())
@@ -54,6 +56,22 @@ class CommentaryRecorderActivity : AppCompatActivity() {
             android.R.layout.simple_spinner_dropdown_item,
             listOf("Friso", "Vanessa"))
         root.addView(speakerSpinner)
+        val pref = getSharedPreferences(CommentaryCaptureService.PREFS, MODE_PRIVATE)
+        heading("CENTRAL RECORDER", 12f, amber)
+        hubField = EditText(this).apply {
+            setSingleLine(true); setTextColor(light); textSize = 14f
+            setText(pref.getString("hub_url",
+                "https://i9es-home.rattlesnake-shiner.ts.net:19884"))
+        }
+        root.addView(hubField)
+        tokenField = EditText(this).apply {
+            setSingleLine(true); setTextColor(light)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            hint = "Recorder pairing token"
+            setText(pref.getString("hub_token", ""))
+        }
+        root.addView(tokenField)
         heading("CAPTURE", 12f, amber)
         fun button(label: String, action: () -> Unit) {
             root.addView(Button(this).apply {
@@ -82,6 +100,10 @@ class CommentaryRecorderActivity : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 27)
             return
         }
+        getSharedPreferences(CommentaryCaptureService.PREFS, MODE_PRIVATE).edit()
+            .putString("hub_url", hubField.text.toString().trim())
+            .putString("hub_token", tokenField.text.toString().trim())
+            .commit()
         val start = Intent(this, CommentaryCaptureService::class.java).apply {
             action = CommentaryCaptureService.START
             putExtra("session", sessionField.text.toString())

@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Morning Show • Clip Conductor",
+  "version": "0.1.0",
+  "description": "Select YouTube fragments and synchronize the morning-show recording timeline",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://i9es-home.rattlesnake-shiner.ts.net/*",
+    "https://www.youtube.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "minimum_chrome_version": "114"
+}

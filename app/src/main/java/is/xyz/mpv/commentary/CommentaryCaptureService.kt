@@ -21,6 +21,7 @@ class CommentaryCaptureService : Service() {
     }
     private var recorder: MediaRecorder? = null
     private var events: File? = null
+    private var sync: CentralSync? = null
     private var audio: File? = null
     private var session = ""
     private var speaker = ""
@@ -86,6 +87,10 @@ class CommentaryCaptureService : Service() {
             r.setOutputFile(audio!!.absolutePath)
             r.prepare(); r.start()
             log("recording_started", "explicit")
+            val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+            sync = CentralSync(prefs.getString("hub_url", "") ?: "",
+                prefs.getString("hub_token", "") ?: "", session, speaker, events!!)
+            sync?.start()
             store(true, "Recording $speaker in $session")
         } catch (e: Exception) {
             log("recording_error", e.javaClass.simpleName)
@@ -118,6 +123,7 @@ class CommentaryCaptureService : Service() {
     }
     private fun finishRecording() {
         val r = recorder ?: run { stopSelf(); return }
+        sync?.stop()
         log("recording_stop_requested", "explicit")
         val result = runCatching { r.stop() }
         runCatching { r.reset(); r.release() }
@@ -126,7 +132,17 @@ class CommentaryCaptureService : Service() {
             audio?.name ?: "")
         store(false, if (result.isSuccess) "Saved ${audio?.name}"
             else "Recording could not be finalized")
-        stopForegroundCompat(); stopSelf()
+        val hub = sync
+        val tracks = listOfNotNull(audio, events,
+            audio?.let { File(it.parentFile, it.nameWithoutExtension + ".session.json") })
+        if (result.isSuccess && hub != null) {
+            Thread({
+                val ok = hub.upload(*tracks.toTypedArray())
+                store(false, if (ok) "Synced to i9ES" else "Saved locally; upload pending")
+                stopForegroundCompat()
+                stopSelf()
+            }, "MorningShowUpload").start()
+        } else { stopForegroundCompat(); stopSelf() }
     }
     private fun stopForegroundCompat() {
         if (Build.VERSION.SDK_INT >= 24) stopForeground(STOP_FOREGROUND_REMOVE)

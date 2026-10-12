@@ -28,7 +28,8 @@
         android:banner="@mipmap/ic_banner"
         android:label="Morning Show Cinema"
         android:appCategory="video"
-        android:localeConfig="@xml/locales_config">
+        android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/morning_network_security">
 
         <!-- Multi-window support on some devices -->
         <meta-data android:name="com.samsung.android.sdk.multiwindow.enable"

@@ -1,0 +1,80 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Morning Show Studio</title></head>
+<body><h1>Morning Show viewing studio</h1>
+<div id="player"></div>
+<style>
+body{background:#151b20;color:#ddd;font:16px Arial;margin:30px}
+main{display:grid;grid-template-columns:2fr 1fr;gap:22px}
+#player{aspect-ratio:16/9;background:#000}
+button,input{padding:12px;background:#203038;color:#eee;border:1px solid #607879;margin:5px}
+button{cursor:pointer}
+.item{display:block;width:100%;text-align:left}
+@media(max-width:800px){main{display:block}}
+</style></head><body>
+<header><small>MORNING SHOW / TRANS­DUCTIVE</small><h1>Viewing Studio</h1></header>
+<main><section><div id="player"></div><p id="now">Choose a clip</p>
+<button id="play">Play</button><button id="pause">Pause</button><button id="next">Next</button>
+<p id="status">Waiting for connection</p></section>
+<aside><p>Recorder token</p><input type="password" id="token">
+<button id="connect">Connect</button><h2>Today's playlist</h2><div id="queue"></div></aside></main>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let queue=[], index=-1, player=null, ready=false;
+const today=new Date();
+const session="morning-"+[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("");
+const $=id=>document.getElementById(id);
+$("token").value=localStorage.getItem("morning-token")||"";
+async function api(path, data) {
+  const res=await fetch(path,{method:data?"POST":"GET",
+    headers:{"Authorization":"Bearer "+$("token").value,
+      "Content-Type":"application/json"},
+    body:data?JSON.stringify(data):undefined});
+  if(!res.ok) throw new Error(path+" "+res.status);
+  return res.json();
+}
+function status(s){$("status").textContent=s;}
+async function refresh(){
+  const data=await api("/api/clips");queue=data.clips;
+  $("queue").replaceChildren();
+  queue.forEach((c,i)=>{
+    const btn=document.createElement("button");btn.className="item";
+    btn.textContent=(i+1)+". "+c.title+" ["+c.start+"–"+c.end+"s]";
+    btn.onclick=()=>select(i);
+    $("queue").appendChild(btn);
+  });
+  status("Connected · "+queue.length+" clips available");
+}
+function select(i){
+  if(i<0||i>=queue.length)return;
+  index=i;const c=queue[i];$("now").textContent=c.title;
+  if(!player||!ready){status("YouTube player initializing");return;}
+  player.loadVideoById({videoId:c.video,startSeconds:c.start,endSeconds:c.end});
+}
+function onYouTubeIframeAPIReady(){
+  player=new YT.Player("player",{height:"100%",width:"100%",
+    videoId:"",playerVars:{playsinline:1,rel:0},
+    events:{onReady:()=>{ready=true;status("Player ready");},
+      onError:e=>status("YouTube embed not permitted: "+e.data),
+      onStateChange:e=>{if(e.data===YT.PlayerState.ENDED) next();}}});
+}
+function next(){select(index+1);}
+$("play").onclick=()=>{if(index<0)select(0);else player?.playVideo();};
+$("pause").onclick=()=>player?.pauseVideo();
+$("next").onclick=next;
+$("connect").onclick=()=>{
+  localStorage.setItem("morning-token",$("token").value);
+  refresh().catch(e=>status(e.message));
+};
+setInterval(async()=>{
+  if(!ready||index<0||!player||!$("token").value)return;
+  const c=queue[index];let position=0,paused=true;
+  try{
+    position=player.getCurrentTime()||0;
+    paused=player.getPlayerState()!==YT.PlayerState.PLAYING;
+    if(!paused&&position>=c.end){next();return;}
+    await api("/api/playback",{session,clip_id:c.id,
+      position_sec:position,paused,rate:player.getPlaybackRate()||1});
+  }catch(e){status("Playback sync: "+e.message);}
+},500);
+if($("token").value)refresh().catch(e=>status(e.message));
+</script></body></html>

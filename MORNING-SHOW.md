@@ -65,3 +65,36 @@ is detected in its deterministic test. Low acoustic correlation is
 flagged for review; do not assume reliable synchronization without
 a common sound or verified clock exchange. This is audio-only and does
 not infer body position, emotion or true device clock offsets.
+
+## Central i9ES recorder (first connected release)
+
+The central hub source is `central/server.py` and its persistent private
+SQLite and recordings storage is `central/state/` (excluded from git).
+The per-machine bearer key is `central/state/token` (mode 0600).
+The user-systemd service `central/morning-show-central.service` runs Gunicorn
+on loopback port 18767; Tailscale Serve independently publishes it at
+`https://i9es-home.rattlesnake-shiner.ts.net:19884` (tailnet only).
+
+The browser studio is at `/studio`. Enter the local recorder token into
+the Studio once per browser profile. Choose a queued fragment and press Play.
+The player reports the exact YouTube playback position twice per second
+and responds to pause, seek, and clip transitions.
+
+Chrome's unpacked MV3 extension lives in `extension/`. On YouTube, capture
+start/end positions and queue selected fragments in the hub. Install unpacked
+on ChromeOS using Developer Mode; ChromeOS must join the same tailnet.
+
+Android now takes the hub URL and pairing token in the recorder screen.
+During recording it samples the authoritative hub playback state at ~1 Hz,
+saving send/receive monotonic timestamps plus the server's position to the
+local JSONL. After stop it attempts to upload M4A, JSONL and session metadata.
+When the hub is unavailable the original local recording is retained.
+Automatic retry after app termination remains an unimplemented improvement.
+
+A development-only USB test may use `adb reverse tcp:18767 tcp:18767`
+and the recorder URL `http://127.0.0.1:18767`. That loopback-only HTTP
+exception exists for ADB; normal service should use HTTPS over Tailscale.
+The phone's session ID must match `morning-YYYYMMDD` from the browser studio.
+
+Only original human commentary audio is recorded. VDO.Ninja and subsequent
+Genesis 9 pose estimation remain separately permissioned future adapters.

@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+body{width:340px;background:#151b20;color:#e5e3d8;font:14px Arial;padding:17px}
+h1{font-weight:500;font-size:23px;letter-spacing:-1px}
+small,label{color:#dfb879;letter-spacing:1px}
+input,button{display:block;box-sizing:border-box;width:100%;padding:9px;margin:7px 0;background:#1d2b2e;color:#eee;border:1px solid #607475}
+button{cursor:pointer}button:hover{background:#344a4d}
+.row{display:flex;gap:9px}.row>*{flex:1;min-width:0}
+#info{white-space:pre-wrap;color:#9cbbba;max-height:80px;overflow:auto}
+</style></head><body>
+<small>TRANS­DUCTIVE / STUDIO TOOL</small><h1>Clip Conductor</h1>
+<label>Central recorder URL</label><input id="server">
+<label>Access token</label><input id="token" type="password">
+<button id="save">Save connection</button>
+<label>Current clip</label><input id="title" placeholder="Clip title">
+<div class="row"><button id="startNow">Use playhead as start</button><button id="endNow">Use as end</button></div>
+<div class="row"><input id="start" type="number" step=".1" min="0"><input id="end" type="number" step=".1" min="0"></div>
+<button id="queue">Add selected fragment to morning show</button>
+<div class="row"><button id="play">Play fragment locally</button><button id="studio">Open studio</button></div>
+<p id="info">Open a YouTube video to capture its timestamps.</p>
+<script src="popup.js"></script></body></html>

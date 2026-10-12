@@ -11,3 +11,11 @@ build/
 local.properties
 ndk.properties
 *~
+
+# Morning Show local runtime and recordings
+central/.venv/
+central/state/
+dist/
+receipts/
+__pycache__/
+*.pyc
