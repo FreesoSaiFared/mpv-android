@@ -87,6 +87,7 @@ class CommentaryRecorderActivity : AppCompatActivity() {
         button("START MICROPHONE") { startCapture() }
         button("SYNC MARKER / CLAP") { sendCommand(CommentaryCaptureService.ANCHOR) }
         button("STOP AND SAVE") { sendCommand(CommentaryCaptureService.STOP) }
+        button("RESEND LAST TO i9ES") { resendLast() }
         status = TextView(this).apply {
             textSize = 15f; setTextColor(light)
             setPadding(0, (14 * dp).toInt(), 0, 0)
@@ -111,6 +112,23 @@ class CommentaryRecorderActivity : AppCompatActivity() {
         }
         ContextCompat.startForegroundService(this, start)
         status.text = "Starting microphone…"
+    }
+    private fun resendLast() {
+        val prefs = getSharedPreferences(CommentaryCaptureService.PREFS, MODE_PRIVATE)
+        if (prefs.getBoolean("recording", false)) {
+            status.text = "Stop recording before uploading"; return
+        }
+        val file = java.io.File(prefs.getString("file", "") ?: "")
+        if (!file.isFile) { status.text = "No local audio to resend"; return }
+        val events = java.io.File(file.parentFile, file.nameWithoutExtension + ".events.jsonl")
+        val info = java.io.File(file.parentFile, file.nameWithoutExtension + ".session.json")
+        val hub = CentralSync(hubField.text.toString(), tokenField.text.toString(),
+            prefs.getString("session", "") ?: "", prefs.getString("speaker", "") ?: "", events)
+        Thread({
+            val ok = hub.upload(file, events, info)
+            prefs.edit().putString("status", if(ok) "Synced to i9ES" else "Retry failed; audio is safe locally").apply()
+        }, "MorningShowRetry").start()
+        status.text = "Uploading archived audio to i9ES…"
     }
     private fun sendCommand(command: String) {
         val cmd = Intent(this, CommentaryCaptureService::class.java).apply {

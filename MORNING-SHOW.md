@@ -98,3 +98,13 @@ The phone's session ID must match `morning-YYYYMMDD` from the browser studio.
 
 Only original human commentary audio is recorded. VDO.Ninja and subsequent
 Genesis 9 pose estimation remain separately permissioned future adapters.
+
+## Downloadable builds
+
+The hub also serves the unpacked Chrome extension archive as
+`/extension.zip` and the latest locally signed Android APK as `/app.apk`.
+Those routes are reachable only from the Tailscale-connected network.
+The signing key remains on i9ES under gitignored `central/state/signing/`.
+When the phone reconnects, an update can use `adb install -r` with this
+same signing key without removing previous recordings.
+The recorder screen includes **RESEND LAST TO i9ES** for interrupted uploads.

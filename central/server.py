@@ -24,7 +24,7 @@ app = Flask(__name__)
 CURRENT = {"session":"morning", "clip_id":None, "position_sec":0.0,"paused":True,"rate":1.0,"updated_ns":time.time_ns()}
 @app.before_request
 def access():
-    if request.path in ("/health", "/studio") or request.method == "OPTIONS":
+    if request.path in ("/health", "/studio", "/extension.zip", "/app.apk") or request.method == "OPTIONS":
         return None
     if request.headers.get("Authorization") != "Bearer " + TOKEN:
         return jsonify(error="invalid_authorization"), 401
@@ -151,6 +151,14 @@ def mpv_command(ident):
 @app.route("/studio")
 def studio():
     return send_file(ROOT / "studio.html")
+
+@app.route("/extension.zip")
+def extension_zip():
+    return send_file(ROOT.parent / "dist" / "clip-conductor.zip", as_attachment=True)
+
+@app.route("/app.apk")
+def android_apk():
+    return send_file(ROOT.parent / "dist" / "latest" / "morning-show-huawei.apk", as_attachment=True)
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--host",default="127.0.0.1")
